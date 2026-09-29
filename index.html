@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nuestro chat</title>
+<style>
+:root{--bg:#0f172a;--bar:#1e3a8a;--mine:#2563eb;--other:#1e293b;--txt:#e2e8f0;--acc:#3b82f6}
+body.anna{--bg:#fff0f6;--bar:#ec4899;--mine:#f472b6;--other:#ffe0ee;--txt:#4a1d34;--acc:#ec4899}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;font-family:system-ui,"Segoe UI",sans-serif;background:var(--bg);color:var(--txt)}
+#login,#app{height:100%}
+#login{display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#1e3a8a,#ec4899)}
+#login form{background:#fff;color:#333;padding:30px;border-radius:20px;width:90%;max-width:320px;text-align:center;box-shadow:0 10px 40px #0005}
+#login input{width:100%;padding:12px;margin:6px 0;border:2px solid #ddd;border-radius:12px;font-size:16px}
+#login button{width:100%;padding:12px;margin-top:8px;border:0;border-radius:12px;background:linear-gradient(90deg,#3b82f6,#ec4899);color:#fff;font-size:16px;cursor:pointer}
+#err{color:#dc2626;font-size:14px;min-height:18px}
+#app{display:none;flex-direction:column}
+header{background:var(--bar);color:#fff;padding:14px 18px;display:flex;justify-content:space-between;align-items:center;font-weight:600}
+header button{background:#fff3;border:0;color:#fff;padding:6px 12px;border-radius:10px;cursor:pointer}
+#msgs{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:8px}
+body.anna #msgs{background-image:radial-gradient(#fbcfe8 2px,transparent 2px);background-size:26px 26px}
+.m{max-width:78%;padding:9px 13px;border-radius:18px;background:var(--other);word-wrap:break-word;overflow-wrap:anywhere}
+.m.me{align-self:flex-end;background:var(--mine);color:#fff;border-bottom-right-radius:4px}
+.m:not(.me){align-self:flex-start;border-bottom-left-radius:4px}
+.m small{display:block;opacity:.65;font-size:11px;margin-bottom:2px}
+.m img{max-width:100%;max-height:280px;border-radius:12px;display:block;margin-top:4px}
+.m a{color:inherit;text-decoration:underline}
+form#send{display:flex;gap:6px;padding:10px;background:var(--bar)}
+form#send input[type=text]{flex:1;padding:12px;border:0;border-radius:22px;font-size:16px;min-width:0}
+form#send button,form#send label{background:#fff;border:0;border-radius:50%;width:44px;height:44px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:20px;flex:none}
+#hearts{position:fixed;inset:0;pointer-events:none;overflow:hidden}
+.h{position:absolute;bottom:-30px;animation:up linear forwards;opacity:.7}
+@keyframes up{to{transform:translateY(-110vh)}}
+</style>
+</head>
+<body>
+<div id="login">
+<form id="lf"><h2>💙 Nuestro chat 💗</h2>
+<input id="u" placeholder="Usuario" autocomplete="username">
+<input id="p" type="password" placeholder="Contraseña" autocomplete="current-password">
+<div id="err"></div><button>Entrar</button></form>
+</div>
+<div id="app">
+<header><span id="title"></span><button id="out">Salir</button></header>
+<div id="msgs"></div>
+<form id="send">
+<label>📎<input id="file" type="file" hidden></label>
+<input type="text" id="t" placeholder="Escribe, pega un link o un gif..." autocomplete="off">
+<button>➤</button>
+</form>
+</div>
+<div id="hearts"></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+// 1) PEGA AQUÍ TU CONFIG DE FIREBASE (mira el README)
+const firebaseConfig = {
+  apiKey: "PEGA_AQUI",
+  authDomain: "PEGA_AQUI",
+  projectId: "PEGA_AQUI",
+  appId: "PEGA_AQUI"
+};
+const USERS = { bilal: "bilal123", anna: "anna123" };
+const MAX = 700 * 1024; // límite de archivo (Firestore admite ~1MB por mensaje)
+
+firebase.initializeApp(firebaseConfig);
+const col = firebase.firestore().collection("messages");
+const $ = id => document.getElementById(id);
+let me = null, unsub = null, heartTimer = null;
+
+function start(user){
+  me = user;
+  document.body.className = user === "anna" ? "anna" : "";
+  $("login").style.display = "none"; $("app").style.display = "flex";
+  $("title").textContent = user === "anna" ? "💗 Chat con Bilal" : "💙 Chat con Anna";
+  if (user === "anna") heartTimer = setInterval(heart, 1500);
+  unsub = col.orderBy("ts").limitToLast(200).onSnapshot(s => {
+    const box = $("msgs"); box.innerHTML = "";
+    s.forEach(d => box.appendChild(render(d.data())));
+    box.scrollTop = box.scrollHeight;
+  }, e => alert("Error de Firebase: " + e.message));
+}
+function esc(s){ return s.replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+function linkify(t){
+  return esc(t).replace(/(https?:\/\/[^\s<]+)/g, u => {
+    const clean = u.replace(/&amp;/g,"&");
+    if (/\.(gif|png|jpe?g|webp)(\?.*)?$/i.test(clean) || /media\.giphy\.com|media\.tenor\.com|i\.giphy\.com/i.test(clean))
+      return `<img src="${clean}" loading="lazy">`;
+    return `<a href="${clean}" target="_blank" rel="noopener noreferrer">${u}</a>`;
+  });
+}
+function render(m){
+  const d = document.createElement("div");
+  d.className = "m" + (m.user === me ? " me" : "");
+  const time = m.ts ? m.ts.toDate().toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"}) : "";
+  let body = m.text ? linkify(m.text) : "";
+  if (m.data){
+    body += m.type && m.type.startsWith("image/")
+      ? `<img src="${m.data}">`
+      : `<a href="${m.data}" download="${esc(m.name||"archivo")}">📄 ${esc(m.name||"archivo")}</a>`;
+  }
+  d.innerHTML = `<small>${m.user} · ${time}</small>${body}`;
+  return d;
+}
+function heart(){
+  const h = document.createElement("div"); h.className = "h"; h.textContent = ["💗","💖","🌸","💕"][Math.random()*4|0];
+  h.style.left = Math.random()*100 + "%"; h.style.fontSize = 14 + Math.random()*18 + "px";
+  h.style.animationDuration = 6 + Math.random()*5 + "s";
+  $("hearts").appendChild(h); setTimeout(() => h.remove(), 12000);
+}
+function shrink(file){ // comprime imágenes (menos gifs) para que quepan
+  return new Promise(res => {
+    const r = new FileReader();
+    r.onload = () => {
+      if (file.type === "image/gif" || !file.type.startsWith("image/")) return res(r.result);
+      const img = new Image();
+      img.onload = () => {
+        const k = Math.min(1, 1000 / Math.max(img.width, img.height));
+        const c = document.createElement("canvas"); c.width = img.width*k; c.height = img.height*k;
+        c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+        res(c.toDataURL("image/jpeg", 0.75));
+      };
+      img.src = r.result;
+    };
+    r.readAsDataURL(file);
+  });
+}
+function add(o){ return col.add({ user: me, ts: firebase.firestore.FieldValue.serverTimestamp(), ...o }); }
+
+$("lf").onsubmit = e => {
+  e.preventDefault();
+  const u = $("u").value.trim().toLowerCase(), p = $("p").value;
+  if (USERS[u] && USERS[u] === p){ localStorage.setItem("chatUser", u); start(u); }
+  else $("err").textContent = "Usuario o contraseña incorrectos";
+};
+$("out").onclick = () => { localStorage.removeItem("chatUser"); if (unsub) unsub(); clearInterval(heartTimer); location.reload(); };
+$("send").onsubmit = e => {
+  e.preventDefault();
+  const t = $("t").value.trim(); if (!t) return;
+  $("t").value = ""; add({ text: t });
+};
+$("file").onchange = async e => {
+  const f = e.target.files[0]; e.target.value = ""; if (!f) return;
+  if (f.size > MAX * 3) return alert("Archivo demasiado grande (máx ~2 MB, y tras convertir debe caber en 700 KB)");
+  const data = await shrink(f);
+  if (data.length > MAX * 1.33) return alert("Archivo demasiado grande. Máximo ~700 KB.");
+  add({ text: "", data, name: f.name, type: f.type });
+};
+const saved = localStorage.getItem("chatUser");
+if (saved && USERS[saved]) start(saved);
+</script>
+</body>
+</html>
