@@ -1,1047 +1,355 @@
 <!DOCTYPE html>
-<html lang="es">
-<head>
+<html lang="es"><head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Nuestro chat</title>
-
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="theme-color" content="#1e3a8a">
+<meta name="apple-mobile-web-app-capable" content="yes">
 <style>
-:root{
-  --bg:#0f172a;
-  --bar:#1e3a8a;
-  --mine:#2563eb;
-  --other:#1e293b;
-  --txt:#e2e8f0;
-  --acc:#3b82f6
-}
-
-body.anna{
-  --bg:#fff0f6;
-  --bar:#ec4899;
-  --mine:#f472b6;
-  --other:#ffe0ee;
-  --txt:#4a1d34;
-  --acc:#ec4899
-}
-
-*{
-  box-sizing:border-box
-}
-
-html,body{
-  height:100%;
-  margin:0;
-  font-family:system-ui,"Segoe UI",sans-serif;
-  background:var(--bg);
-  color:var(--txt)
-}
-
-#login,#app{
-  height:100%
-}
-
-#login{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  background:linear-gradient(135deg,#1e3a8a,#ec4899)
-}
-
-#login form{
-  background:#fff;
-  color:#333;
-  padding:30px;
-  border-radius:20px;
-  width:90%;
-  max-width:320px;
-  text-align:center;
-  box-shadow:0 10px 40px #0005
-}
-
-#login input{
-  width:100%;
-  padding:12px;
-  margin:6px 0;
-  border:2px solid #ddd;
-  border-radius:12px;
-  font-size:16px
-}
-
-#login button{
-  width:100%;
-  padding:12px;
-  margin-top:8px;
-  border:0;
-  border-radius:12px;
-  background:linear-gradient(90deg,#3b82f6,#ec4899);
-  color:#fff;
-  font-size:16px;
-  cursor:pointer
-}
-
-#err{
-  color:#dc2626;
-  font-size:14px;
-  min-height:18px
-}
-
-#app{
-  display:none;
-  flex-direction:column
-}
-
-header{
-  background:var(--bar);
-  color:#fff;
-  padding:14px 18px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  font-weight:600
-}
-
-header button{
-  background:#fff3;
-  border:0;
-  color:#fff;
-  padding:6px 12px;
-  border-radius:10px;
-  cursor:pointer
-}
-
-#msgs{
-  flex:1;
-  overflow-y:auto;
-  padding:14px;
-  display:flex;
-  flex-direction:column;
-  gap:8px
-}
-
-body.anna #msgs{
-  background-image:radial-gradient(#fbcfe8 2px,transparent 2px);
-  background-size:26px 26px
-}
-
-.m{
-  max-width:78%;
-  padding:9px 13px;
-  border-radius:18px;
-  background:var(--other);
-  word-wrap:break-word;
-  overflow-wrap:anywhere
-}
-
-.m.me{
-  align-self:flex-end;
-  background:var(--mine);
-  color:#fff;
-  border-bottom-right-radius:4px
-}
-
-.m:not(.me){
-  align-self:flex-start;
-  border-bottom-left-radius:4px
-}
-
-.m small{
-  display:block;
-  opacity:.65;
-  font-size:11px;
-  margin-bottom:2px
-}
-
-.status{
-  margin-left:5px;
-  font-weight:600
-}
-
-.m img{
-  max-width:100%;
-  max-height:280px;
-  border-radius:12px;
-  display:block;
-  margin-top:4px
-}
-
-.m a{
-  color:inherit;
-  text-decoration:underline
-}
-
-form#send{
-  display:flex;
-  gap:6px;
-  padding:10px;
-  background:var(--bar)
-}
-
-form#send input[type=text]{
-  flex:1;
-  padding:12px;
-  border:0;
-  border-radius:22px;
-  font-size:16px;
-  min-width:0
-}
-
-form#send button,
-form#send label{
-  background:#fff;
-  border:0;
-  border-radius:50%;
-  width:44px;
-  height:44px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  cursor:pointer;
-  font-size:20px;
-  flex:none
-}
-
-#hearts{
-  position:fixed;
-  inset:0;
-  pointer-events:none;
-  overflow:hidden
-}
-
-.h{
-  position:absolute;
-  bottom:-30px;
-  animation:up linear forwards;
-  opacity:.7
-}
-
-@keyframes up{
-  to{
-    transform:translateY(-110vh)
-  }
-}
-</style>
-</head>
-
+:root{--bg:#0f172a;--bar:#1e3a8a;--mine:#2563eb;--other:#1e293b;--txt:#e2e8f0}
+body.anna{--bg:#fff0f6;--bar:#ec4899;--mine:#f472b6;--other:#ffe0ee;--txt:#4a1d34}
+body.anna.dark{--bg:#1f0b17;--bar:#9d174d;--mine:#db2777;--other:#3b1229;--txt:#fce7f3}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;font-family:system-ui,"Segoe UI",sans-serif;background:var(--bg);color:var(--txt)}
+#login,#app{height:100%}
+#login{display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#1e3a8a,#ec4899)}
+#login form{background:#fff;color:#333;padding:30px;border-radius:20px;width:90%;max-width:320px;text-align:center;box-shadow:0 10px 40px #0005}
+#login input{width:100%;padding:12px;margin:6px 0;border:2px solid #ddd;border-radius:12px;font-size:16px}
+#login button{width:100%;padding:12px;margin-top:8px;border:0;border-radius:12px;background:linear-gradient(90deg,#3b82f6,#ec4899);color:#fff;font-size:16px;cursor:pointer}
+#err{color:#dc2626;font-size:14px;min-height:18px}
+#app{display:none;flex-direction:column}
+header{background:var(--bar);color:#fff;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;font-weight:600}
+.hl{display:flex;flex-direction:column;line-height:1.2}
+#sub{font-size:12px;font-weight:400;opacity:.85;min-height:14px}
+.hb{display:flex;gap:4px}
+header button{background:#fff3;border:0;color:#fff;padding:6px 9px;border-radius:10px;cursor:pointer;font-size:15px}
+#together{background:var(--other);text-align:center;font-size:13px;padding:4px;cursor:pointer}
+#msgs{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:8px}
+body.anna #msgs{background-image:radial-gradient(#fbcfe8 2px,transparent 2px);background-size:26px 26px}
+body.anna.dark #msgs{background-image:radial-gradient(#4a1d34 2px,transparent 2px)}
+.day{align-self:center;font-size:12px;opacity:.75;background:var(--other);padding:3px 12px;border-radius:12px;margin:6px 0}
+.m{max-width:78%;padding:9px 13px;border-radius:18px;background:var(--other);overflow-wrap:anywhere;position:relative}
+.m.me{align-self:flex-end;background:var(--mine);color:#fff;border-bottom-right-radius:4px}
+.m:not(.me){align-self:flex-start;border-bottom-left-radius:4px}
+.m.hl2{outline:3px solid #facc15}
+.m small{display:block;opacity:.65;font-size:11px;margin-bottom:2px}
+.status{margin-left:5px;font-weight:600}
+.m img{max-width:100%;max-height:280px;border-radius:12px;display:block;margin-top:4px}
+.m a{color:inherit;text-decoration:underline}
+.q{border-left:3px solid #fff8;background:#0002;padding:3px 8px;border-radius:6px;font-size:13px;margin-bottom:4px;cursor:pointer}
+.rx{margin-top:4px;font-size:15px}
+.rx span{background:#0003;border-radius:10px;padding:1px 6px;margin-right:3px}
+.act{display:flex;gap:2px;flex-wrap:wrap;margin-top:6px;background:#0003;border-radius:12px;padding:3px}
+.act button{background:none;border:0;font-size:18px;cursor:pointer;color:inherit;padding:2px 5px}
+.act button.t{font-size:12px}
+#bar{display:none;align-items:center;justify-content:space-between;padding:6px 12px;background:var(--other);font-size:13px}
+#bar button{background:none;border:0;color:inherit;font-size:16px;cursor:pointer}
+#panel{display:none;height:230px;background:var(--other);flex-direction:column}
+#tabs{display:flex}
+#tabs button{flex:1;padding:6px;border:0;background:none;color:inherit;font-size:15px;cursor:pointer}
+#tabs button.on{border-bottom:3px solid var(--mine)}
+#pbody{flex:1;overflow-y:auto;padding:6px}
+#emo{display:flex;flex-wrap:wrap}
+#emo span{font-size:26px;padding:4px;cursor:pointer}
+#gq{width:100%;padding:8px;border:0;border-radius:10px;margin-bottom:6px;font-size:15px}
+#gr{columns:3;gap:4px}
+#gr img{width:100%;margin-bottom:4px;border-radius:8px;cursor:pointer;display:block}
+form#send{display:flex;gap:5px;padding:8px;background:var(--bar)}
+form#send input[type=text]{flex:1;padding:10px;border:0;border-radius:22px;font-size:16px;min-width:0;color:#222}
+form#send button,form#send label{background:#fff;border:0;border-radius:50%;width:40px;height:40px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;flex:none}
+#plans{display:none;position:fixed;inset:0;background:var(--bg);flex-direction:column;z-index:5}
+#plans h3{margin:0;padding:14px;background:var(--bar);color:#fff;display:flex;justify-content:space-between}
+#plans h3 button{background:#fff3;border:0;color:#fff;border-radius:10px;padding:4px 10px;cursor:pointer}
+#pl{flex:1;overflow-y:auto;padding:10px}
+.pi{display:flex;align-items:center;gap:8px;padding:10px;background:var(--other);border-radius:12px;margin-bottom:6px}
+.pi span{flex:1}.pi.done span{text-decoration:line-through;opacity:.55}
+.pi button{background:none;border:0;color:inherit;cursor:pointer;font-size:16px}
+#pf{display:flex;gap:6px;padding:10px;background:var(--bar)}
+#pf input{flex:1;padding:10px;border:0;border-radius:12px;font-size:16px;color:#222}
+#pf button{border:0;border-radius:12px;padding:0 16px;font-size:16px}
+#hearts{position:fixed;inset:0;pointer-events:none;overflow:hidden}
+.h{position:absolute;bottom:-30px;animation:up linear forwards;opacity:.7}
+@keyframes up{to{transform:translateY(-110vh)}}
+</style></head>
 <body>
+<div id="login"><form id="lf"><h2>💙 Nuestro chat 💗</h2>
+<input id="u" placeholder="Usuario" autocomplete="username">
+<input id="p" type="password" placeholder="Contraseña" autocomplete="current-password">
+<div id="err"></div><button>Entrar</button></form></div>
 
-<!-- LOGIN -->
-<div id="login">
-
-  <form id="lf">
-
-    <h2>💙 Nuestro chat 💗</h2>
-
-    <input
-      id="u"
-      placeholder="Usuario"
-      autocomplete="username"
-    >
-
-    <input
-      id="p"
-      type="password"
-      placeholder="Contraseña"
-      autocomplete="current-password"
-    >
-
-    <div id="err"></div>
-
-    <button>
-      Entrar
-    </button>
-
-  </form>
-
-</div>
-
-
-<!-- CHAT -->
 <div id="app">
-
-  <header>
-
-    <span id="title"></span>
-
-    <button id="out">
-      Salir
-    </button>
-
-  </header>
-
-
-  <div id="msgs"></div>
-
-
-  <form id="send">
-
-    <label>
-      📎
-      <input
-        id="file"
-        type="file"
-        hidden
-      >
-    </label>
-
-    <input
-      type="text"
-      id="t"
-      placeholder="Escribe, pega un link o un gif..."
-      autocomplete="off"
-    >
-
-    <button>
-      ➤
-    </button>
-
-  </form>
-
+<header><div class="hl"><span id="title"></span><span id="sub"></span></div>
+<div class="hb"><button id="plb" title="Planes">📝</button><button id="moon" title="Modo oscuro">🌙</button><button id="bell">🔔</button><button id="out">Salir</button></div></header>
+<div id="together"></div>
+<div id="msgs"></div>
+<div id="bar"><span id="bt"></span><button id="bx">✕</button></div>
+<div id="panel"><div id="tabs"><button id="te" class="on">😊 Emojis</button><button id="tg">GIF</button></div><div id="pbody"></div></div>
+<form id="send">
+<label>📎<input id="file" type="file" hidden></label>
+<button type="button" id="eb">😊</button>
+<button type="button" id="lb">📍</button>
+<input type="text" id="t" placeholder="Escribe..." autocomplete="off">
+<button>➤</button></form>
 </div>
 
-
+<div id="plans"><h3><span>📝 Planes pendientes</span><button id="px">Cerrar</button></h3><div id="pl"></div>
+<form id="pf"><input id="pt" placeholder="Añadir plan..." autocomplete="off"><button>+</button></form></div>
 <div id="hearts"></div>
 
-
-<!-- FIREBASE -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-
-
 <script>
-
-// ============================================
-// CONFIGURACIÓN FIREBASE
-// ============================================
-
-const firebaseConfig = {
-
-  apiKey: "AIzaSyDFdFaQVcxzTOYN4e6X29psDIdnx3711_Y",
-
-  authDomain: "chat-9916f.firebaseapp.com",
-
-  projectId: "chat-9916f",
-
-  storageBucket: "chat-9916f.firebasestorage.app",
-
-  messagingSenderId: "347773335153",
-
-  appId: "1:347773335153:web:7949a520778acacefa0dd0"
-
+const firebaseConfig={
+  apiKey:"AIzaSyDFdFaQVcxzTOYN4e6X29psDIdnx3711_Y",
+  authDomain:"chat-9916f.firebaseapp.com",
+  projectId:"chat-9916f",
+  storageBucket:"chat-9916f.firebasestorage.app",
+  messagingSenderId:"347773335153",
+  appId:"1:347773335153:web:7949a520778acacefa0dd0"
 };
-
-
-// Usuarios
-const USERS = {
-
-  bilal: "bilal123",
-
-  anna: "anna123"
-
-};
-
-
-// Tamaño máximo
-const MAX = 700 * 1024;
-
-
-// Inicializar Firebase
+const GIPHY_KEY="SMfuLrQYuV2axjVfb87BnPoroVJw8LbE"; // <- pega aquí tu API key gratis de developers.giphy.com
+const MEMBERS=["bilal","anna"], DOM="@nuestrochat.app", MAX=700*1024;
 firebase.initializeApp(firebaseConfig);
+const db=firebase.firestore(), auth=firebase.auth(), FV=firebase.firestore.FieldValue;
+const col=db.collection("messages"), pres=db.collection("presence"), plansCol=db.collection("plans"), cfg=db.collection("config").doc("together");
+const $=id=>document.getElementById(id);
+let me=null,unsubs=[],heartTimer=null,presTimer=null,typingTimer=null,openId=null,replyTo=null,editing=null,
+    pendingRead=[],lastDocs=[],missed=0,swReg=null,started=false;
+const baseTitle=document.title;
+const active=()=>document.visibilityState==="visible"&&document.hasFocus();
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const hm=ts=>ts.toDate().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"});
 
+if("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").then(r=>swReg=r).catch(()=>{});
 
-// Colección de mensajes
-const col =
-  firebase.firestore().collection("messages");
-
-
-// Función para obtener elementos HTML
-const $ = id =>
-  document.getElementById(id);
-
-
-// Variables
-let me = null;
-
-let unsub = null;
-
-let heartTimer = null;
-
-
-// ============================================
-// INICIAR CHAT
-// ============================================
-
-function start(user){
-
-  me = user;
-
-
-  // Cambiar tema
-  document.body.className =
-    user === "anna" ? "anna" : "";
-
-
-  // Mostrar aplicación
-  $("login").style.display = "none";
-
-  $("app").style.display = "flex";
-
-
-  // Título
-  $("title").textContent =
-    user === "anna"
-      ? "💗 Chat con Bilal"
-      : "💙 Chat con Anna";
-
-
-  // Corazones para Anna
-  if(user === "anna"){
-
-    heartTimer =
-      setInterval(heart,1500);
-
+// ---------- notificaciones ----------
+function updateBell(){$("bell").textContent=("Notification" in window&&Notification.permission==="granted")?"🔔":"🔕";}
+async function askNotif(){if(!("Notification" in window))return;try{await Notification.requestPermission();}catch(e){}updateBell();}
+function beep(){try{const a=new(window.AudioContext||window.webkitAudioContext)(),o=a.createOscillator(),g=a.createGain();o.connect(g);g.connect(a.destination);o.frequency.value=660;g.gain.value=.05;o.start();o.stop(a.currentTime+.15);}catch(e){}}
+function setBadge(){document.title=missed?`(${missed}) 💬 ${baseTitle}`:baseTitle;}
+function notify(m){
+  if(active())return;
+  missed++;setBadge();beep();
+  if("Notification" in window&&Notification.permission==="granted"){
+    const t="💬 "+m.user,o={body:m.text||(m.gif?"GIF":"📎 Archivo"),tag:"chat",renotify:true};
+    try{swReg?swReg.showNotification(t,o):new Notification(t,o);}catch(e){}
   }
-
-
-  // Escuchar mensajes
-  unsub =
-    col
-      .orderBy("ts")
-      .limitToLast(200)
-      .onSnapshot(
-
-        async s => {
-
-          const box =
-            $("msgs");
-
-          box.innerHTML = "";
-
-
-          const unread = [];
-
-
-          // Mostrar mensajes
-          s.forEach(doc => {
-
-            const data =
-              doc.data();
-
-
-            box.appendChild(
-              render(data,doc.id)
-            );
-
-
-            // Si es un mensaje de la otra persona
-            // y todavía no está leído
-            if(
-              data.user !== me &&
-              !(
-                data.readBy &&
-                data.readBy[me] === true
-              )
-            ){
-
-              unread.push(doc.ref);
-
-            }
-
-          });
-
-
-          // Bajar al último mensaje
-          box.scrollTop =
-            box.scrollHeight;
-
-
-          // Marcar como leído
-          for(const ref of unread){
-
-            try{
-
-              await ref.update({
-
-                [`readBy.${me}`]: true
-
-              });
-
-            }catch(err){
-
-              console.error(
-                "No se pudo marcar como leído:",
-                err
-              );
-
-            }
-
-          }
-
-        },
-
-        e => {
-
-          console.error(
-            "Firestore:",
-            e
-          );
-
-          alert(
-            "Error de Firebase: " +
-            e.message
-          );
-
-        }
-
-      );
-
 }
 
-
-// ============================================
-// ESCAPAR TEXTO
-// ============================================
-
-function esc(s){
-
-  return s.replace(
-
-    /[&<>"']/g,
-
-    c => ({
-
-      "&":"&amp;",
-      "<":"&lt;",
-      ">":"&gt;",
-      '"':"&quot;",
-      "'":"&#39;"
-
-    }[c])
-
-  );
-
+// ---------- presencia ----------
+function setPresence(x){if(!me)return;pres.doc(me).set({online:active(),ts:firebase.firestore.Timestamp.now(),...x},{merge:true}).catch(()=>{});}
+function watchPresence(){
+  const other=me==="anna"?"bilal":"anna";
+  unsubs.push(pres.doc(other).onSnapshot(d=>{
+    const p=d.data(),el=$("sub");if(!p){el.textContent="";return;}
+    const fresh=p.ts&&Date.now()-p.ts.toMillis()<45000;
+    el.textContent=fresh&&p.typing?"escribiendo…":fresh&&p.online?"🟢 en línea":p.ts?"últ. vez "+hm(p.ts):"";
+  }));
+  setPresence({typing:false});presTimer=setInterval(()=>setPresence({}),20000);
 }
 
+// ---------- leído ----------
+async function markRead(){
+  if(!active()||!pendingRead.length)return;
+  const refs=pendingRead;pendingRead=[];missed=0;setBadge();
+  for(const r of refs){try{await r.update({[`readBy.${me}`]:true,[`readAt.${me}`]:firebase.firestore.Timestamp.now()});}catch(e){console.error(e);}}
+}
+const onWin=()=>{setPresence({});markRead();};
+document.addEventListener("visibilitychange",onWin);
+addEventListener("focus",onWin);
+addEventListener("blur",()=>setPresence({typing:false}));
 
-// ============================================
-// CONVERTIR LINKS
-// ============================================
-
+// ---------- render ----------
 function linkify(t){
-
-  return esc(t).replace(
-
-    /(https?:\/\/[^\s<]+)/g,
-
-    u => {
-
-      const clean =
-        u.replace(/&amp;/g,"&");
-
-
-      // GIF / imagen
-      if(
-
-        /\.(gif|png|jpe?g|webp)(\?.*)?$/i
-        .test(clean)
-
-        ||
-
-        /media\.giphy\.com|media\.tenor\.com|i\.giphy\.com/i
-        .test(clean)
-
-      ){
-
-        return `
-          <img
-            src="${clean}"
-            loading="lazy"
-          >
-        `;
-
-      }
-
-
-      // Link normal
-      return `
-        <a
-          href="${clean}"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          ${u}
-        </a>
-      `;
-
-    }
-
-  );
-
+  return esc(t).replace(/(https?:\/\/[^\s<]+)/g,u=>{
+    const c=u.replace(/&amp;/g,"&");
+    if(/\.(gif|png|jpe?g|webp)(\?.*)?$/i.test(c))return `<img src="${c}" loading="lazy">`;
+    return `<a href="${c}" target="_blank" rel="noopener noreferrer">${u}</a>`;
+  });
 }
-
-
-// ============================================
-// MOSTRAR MENSAJE
-// ============================================
-
+function dayLabel(ts){
+  const d=ts?ts.toDate():new Date(),n=new Date(),y=new Date();y.setDate(n.getDate()-1);
+  if(d.toDateString()===n.toDateString())return"Hoy";
+  if(d.toDateString()===y.toDateString())return"Ayer";
+  return d.toLocaleDateString("es-ES",{weekday:"long",day:"numeric",month:"long"});
+}
+const EMO=["❤️","😂","👍","😮","😢","🙏"];
 function render(m,id){
-
-  const d =
-    document.createElement("div");
-
-
-  const mine =
-    m.user === me;
-
-
-  d.className =
-    "m" + (mine ? " me" : "");
-
-
-  d.dataset.id = id;
-
-
-  // Hora
-  const time =
-    m.ts
-
-      ? m.ts
-          .toDate()
-          .toLocaleTimeString(
-            [],
-            {
-              hour:"2-digit",
-              minute:"2-digit"
-            }
-          )
-
-      : "";
-
-
-  // Texto
-  let body =
-    m.text
-      ? linkify(m.text)
-      : "";
-
-
-  // Archivo
-  if(m.data){
-
-    body +=
-
-      m.type &&
-      m.type.startsWith("image/")
-
-      ?
-
-      `<img src="${m.data}">`
-
-      :
-
-      `
-      <a
-        href="${m.data}"
-        download="${esc(m.name || "archivo")}"
-      >
-        📄 ${esc(m.name || "archivo")}
-      </a>
-      `;
-
-  }
-
-
-  // Estado del mensaje
-  let status = "";
-
-
-  if(mine){
-
-    const read =
-      m.readBy &&
-      Object.keys(m.readBy).some(
-
-        u =>
-          u !== me &&
-          m.readBy[u] === true
-
-      );
-
-
-    status = `
-
-      <span class="status">
-
-        ${read ? "✓✓ leído" : "✓ enviado"}
-
-      </span>
-
-    `;
-
-  }
-
-
-  d.innerHTML = `
-
-    <small>
-
-      ${esc(m.user)}
-      ·
-      ${time}
-
-      ${status}
-
-    </small>
-
-    ${body}
-
-  `;
-
-
+  const mine=m.user===me,other=me==="anna"?"bilal":"anna",d=document.createElement("div");
+  d.className="m"+(mine?" me":"");d.dataset.id=id;
+  let b="";
+  if(m.replyTo)b+=`<div class="q" data-go="${esc(m.replyTo.id)}"><b>${esc(m.replyTo.user)}</b> ${esc(m.replyTo.text)}</div>`;
+  if(m.text)b+=linkify(m.text)+(m.edited?' <small style="display:inline">(editado)</small>':"");
+  if(m.gif&&/^https:\/\//.test(m.gif))b+=`<img src="${esc(m.gif)}">`;
+  if(m.data)b+=m.type&&m.type.startsWith("image/")?`<img src="${esc(m.data)}">`:`<a href="${esc(m.data)}" download="${esc(m.name||"archivo")}">📄 ${esc(m.name||"archivo")}</a>`;
+  let st="";
+  if(mine){const r=m.readBy&&m.readBy[other]===true,at=r&&m.readAt&&m.readAt[other]?" "+hm(m.readAt[other]):"";st=`<span class="status">${r?"✓✓ visto"+at:"✓ enviado"}</span>`;}
+  const rs=Object.values(m.reactions||{});
+  const rx=rs.length?`<div class="rx">${rs.map(e=>`<span>${esc(e)}</span>`).join("")}</div>`:"";
+  let act="";
+  if(openId===id)act=`<div class="act">${EMO.map(e=>`<button data-act="r:${e}">${e}</button>`).join("")}<button class="t" data-act="reply">↩ Responder</button>${mine&&m.text?'<button class="t" data-act="edit">✏️ Editar</button>':""}${mine?'<button class="t" data-act="del">🗑 Borrar</button>':""}</div>`;
+  d.innerHTML=`<small>${esc(m.user)} · ${m.ts?hm(m.ts):""} ${st}</small>${b}${rx}${act}`;
   return d;
-
+}
+function draw(scroll){
+  const box=$("msgs"),keep=box.scrollTop;box.innerHTML="";let last="";
+  lastDocs.forEach(({id,data})=>{
+    const l=dayLabel(data.ts);
+    if(l!==last){const s=document.createElement("div");s.className="day";s.textContent=l;box.appendChild(s);last=l;}
+    box.appendChild(render(data,id));
+  });
+  box.scrollTop=scroll?box.scrollHeight:keep;
 }
 
+$("msgs").onclick=e=>{
+  const g=e.target.closest("[data-go]");
+  if(g){const t=document.querySelector(`[data-id="${CSS.escape(g.dataset.go)}"]`);if(t){t.scrollIntoView({block:"center",behavior:"smooth"});t.classList.add("hl2");setTimeout(()=>t.classList.remove("hl2"),1300);}return;}
+  const msg=e.target.closest(".m");if(!msg||e.target.closest("a"))return;
+  const id=msg.dataset.id,btn=e.target.closest("[data-act]");
+  if(!btn){openId=openId===id?null:id;draw(false);return;}
+  const item=lastDocs.find(x=>x.id===id);if(!item)return;
+  const m=item.data,a=btn.dataset.act;openId=null;
+  if(a.startsWith("r:")){
+    const em=a.slice(2),cur=m.reactions&&m.reactions[me];
+    item.ref.update({[`reactions.${me}`]:cur===em?FV.delete():em}).catch(console.error);
+  }else if(a==="reply"){
+    replyTo={id,user:m.user,text:(m.text||(m.gif?"GIF":"📎 archivo")).slice(0,80)};editing=null;showBar("↩ Respondiendo a "+m.user+": "+replyTo.text);$("t").focus();
+  }else if(a==="edit"){
+    editing=id;replyTo=null;$("t").value=m.text;showBar("✏️ Editando mensaje");$("t").focus();
+  }else if(a==="del"){
+    if(confirm("¿Borrar este mensaje?"))item.ref.delete().catch(console.error);
+  }
+  draw(false);
+};
+function showBar(t){$("bt").textContent=t;$("bar").style.display="flex";}
+function clearBar(){replyTo=null;editing=null;$("bar").style.display="none";}
+$("bx").onclick=()=>{if(editing)$("t").value="";clearBar();};
 
-// ============================================
-// CORAZONES
-// ============================================
-
+// ---------- inicio ----------
+function start(user){
+  if(started)return;started=true;me=user;
+  document.body.classList.toggle("anna",user==="anna");
+  $("moon").style.display=user==="anna"?"":"none";
+  document.body.classList.toggle("dark",user==="anna"&&localStorage.getItem("dark")==="1");
+  $("login").style.display="none";$("app").style.display="flex";
+  $("title").textContent=user==="anna"?"💗 Chat con Bilal":"💙 Chat con Anna";
+  updateBell();
+  if(user==="anna")heartTimer=setInterval(heart,1500);
+  watchPresence();
+  let first=true;
+  unsubs.push(col.orderBy("ts").limitToLast(200).onSnapshot(s=>{
+    lastDocs=s.docs.map(d=>({id:d.id,data:d.data(),ref:d.ref}));
+    pendingRead=lastDocs.filter(x=>x.data.user!==me&&!(x.data.readBy&&x.data.readBy[me])).map(x=>x.ref);
+    const ch=s.docChanges(),added=ch.some(c=>c.type==="added");
+    draw(first||added);
+    if(!first)ch.forEach(c=>{if(c.type==="added"&&c.doc.data().user!==me&&!c.doc.metadata.hasPendingWrites)notify(c.doc.data());});
+    first=false;markRead();
+  },e=>{console.error(e);alert("Error de Firebase: "+e.message);}));
+  unsubs.push(cfg.onSnapshot(d=>{
+    const t=$("together"),v=d.exists&&d.data().date;
+    if(!v){t.textContent="💞 Toca aquí para poner vuestra fecha";return;}
+    const days=Math.floor((Date.now()-new Date(v+"T00:00:00"))/864e5);
+    t.textContent=`💞 ${days} días juntos`;
+  }));
+  unsubs.push(plansCol.orderBy("ts").onSnapshot(s=>{
+    $("pl").innerHTML="";
+    s.forEach(d=>{const p=d.data(),r=document.createElement("div");r.className="pi"+(p.done?" done":"");
+      r.innerHTML=`<input type="checkbox" ${p.done?"checked":""}><span>${esc(p.text)}</span><button>✕</button>`;
+      r.querySelector("input").onchange=e=>d.ref.update({done:e.target.checked});
+      r.querySelector("button").onclick=()=>d.ref.delete();
+      $("pl").appendChild(r);});
+  }));
+}
 function heart(){
-
-  const h =
-    document.createElement("div");
-
-
-  h.className = "h";
-
-
-  h.textContent =
-    ["💗","💖","🌸","💕"]
-    [Math.random()*4|0];
-
-
-  h.style.left =
-    Math.random()*100 + "%";
-
-
-  h.style.fontSize =
-    14 + Math.random()*18 + "px";
-
-
-  h.style.animationDuration =
-    6 + Math.random()*5 + "s";
-
-
-  $("hearts").appendChild(h);
-
-
-  setTimeout(
-    () => h.remove(),
-    12000
-  );
-
+  const h=document.createElement("div");h.className="h";
+  h.textContent=["💗","💖","🌸","💕"][Math.random()*4|0];
+  h.style.left=Math.random()*100+"%";h.style.fontSize=14+Math.random()*18+"px";h.style.animationDuration=6+Math.random()*5+"s";
+  $("hearts").appendChild(h);setTimeout(()=>h.remove(),12000);
 }
 
-
-// ============================================
-// COMPRIMIR IMÁGENES
-// ============================================
-
-function shrink(file){
-
-  return new Promise(res => {
-
-    const r =
-      new FileReader();
-
-
-    r.onload = () => {
-
-      // GIF no se convierte
-      if(
-        file.type === "image/gif" ||
-        !file.type.startsWith("image/")
-      ){
-
-        return res(r.result);
-
-      }
-
-
-      const img =
-        new Image();
-
-
-      img.onload = () => {
-
-        const k =
-          Math.min(
-            1,
-            1000 /
-            Math.max(
-              img.width,
-              img.height
-            )
-          );
-
-
-        const c =
-          document.createElement("canvas");
-
-
-        c.width =
-          img.width * k;
-
-
-        c.height =
-          img.height * k;
-
-
-        c.getContext("2d")
-          .drawImage(
-            img,
-            0,
-            0,
-            c.width,
-            c.height
-          );
-
-
-        res(
-          c.toDataURL(
-            "image/jpeg",
-            0.75
-          )
-        );
-
-      };
-
-
-      img.src = r.result;
-
-    };
-
-
-    r.readAsDataURL(file);
-
-  });
-
-}
-
-
-// ============================================
-// AÑADIR MENSAJE A FIRESTORE
-// ============================================
-
+// ---------- enviar ----------
 async function add(o){
+  try{await col.add({user:me,ts:firebase.firestore.Timestamp.now(),readBy:{},readAt:{},...o});}
+  catch(e){console.error(e);alert("No se pudo enviar: "+e.message);}
+}
+$("send").onsubmit=e=>{
+  e.preventDefault();const t=$("t").value.trim();if(!t)return;$("t").value="";
+  if(editing){col.doc(editing).update({text:t,edited:true}).catch(er=>alert(er.message));clearBar();return;}
+  const o={text:t};if(replyTo)o.replyTo=replyTo;clearBar();add(o);
+};
+$("t").addEventListener("input",()=>{setPresence({typing:true});clearTimeout(typingTimer);typingTimer=setTimeout(()=>setPresence({typing:false}),2000);});
+$("bell").onclick=askNotif;
+$("moon").onclick=()=>{const d=document.body.classList.toggle("dark");localStorage.setItem("dark",d?"1":"0");};
 
+// imágenes/archivos
+function shrink(f){return new Promise(res=>{const r=new FileReader();r.onload=()=>{
+  if(f.type==="image/gif"||!f.type.startsWith("image/"))return res(r.result);
+  const i=new Image();i.onload=()=>{const k=Math.min(1,1000/Math.max(i.width,i.height)),c=document.createElement("canvas");c.width=i.width*k;c.height=i.height*k;c.getContext("2d").drawImage(i,0,0,c.width,c.height);res(c.toDataURL("image/jpeg",.75));};
+  i.src=r.result;};r.readAsDataURL(f);});}
+$("file").onchange=async e=>{
+  const f=e.target.files[0];e.target.value="";if(!f)return;
+  if(f.size>MAX*3)return alert("Archivo demasiado grande (máx ~2 MB)");
+  const data=await shrink(f);
+  if(data.length>MAX*1.33)return alert("Archivo demasiado grande. Máximo ~700 KB.");
+  add({text:"",data,name:f.name,type:f.type});
+};
+
+// ubicación
+$("lb").onclick=()=>{
+  if(!navigator.geolocation)return alert("Tu navegador no permite ubicación");
+  if(!confirm("¿Enviar tu ubicación actual?"))return;
+  navigator.geolocation.getCurrentPosition(p=>add({text:`📍 Mi ubicación https://www.google.com/maps?q=${p.coords.latitude},${p.coords.longitude}`}),()=>alert("No se pudo obtener la ubicación"),{enableHighAccuracy:true,timeout:10000});
+};
+
+// emojis + gifs
+const EL="😀 😁 😂 🤣 😊 😍 🥰 😘 😉 😎 🥺 😢 😭 😡 😴 🤔 🙄 😅 🤗 🤭 😏 😳 🥳 🤩 😇 🙈 ❤️ 💙 💗 💕 💖 💘 💋 🌹 🌸 ✨ 🔥 👍 👏 🙌 🙏 💪 🎉 🎁 🍕 🍫 ☕ 🌙 ⭐ 🏖️ ✈️ 🏠".split(" ");
+function tab(t){
+  $("te").classList.toggle("on",t==="e");$("tg").classList.toggle("on",t==="g");
+  const b=$("pbody");
+  if(t==="e"){b.innerHTML='<div id="emo"></div>';EL.forEach(x=>{const s=document.createElement("span");s.textContent=x;s.onclick=()=>{$("t").value+=x;$("t").focus();};$("emo").appendChild(s);});}
+  else{b.innerHTML='<input id="gq" placeholder="Buscar GIF..."><div id="gr"></div>';$("gq").oninput=debounceG;gifs("");}
+}
+let gt;const debounceG=()=>{clearTimeout(gt);gt=setTimeout(()=>gifs($("gq").value.trim()),400);};
+async function gifs(q){
+  const g=$("gr");if(!GIPHY_KEY){g.textContent="Falta la API key de Giphy (ver README).";return;}
   try{
-
-    await col.add({
-
-      user: me,
-
-      ts:
-        firebase.firestore.Timestamp.now(),
-
-      // Nadie lo ha leído todavía
-      readBy: {},
-
-      ...o
-
-    });
-
-  }catch(e){
-
-    console.error(e);
-
-    alert(
-      "No se pudo enviar el mensaje: " +
-      e.message
-    );
-
-  }
-
+    const u=`https://api.giphy.com/v1/gifs/${q?"search":"trending"}?api_key=${GIPHY_KEY}&limit=24&rating=g${q?"&q="+encodeURIComponent(q):""}`;
+    const j=await (await fetch(u)).json();g.innerHTML="";
+    j.data.forEach(x=>{const i=document.createElement("img"),url=x.images.fixed_height.url;i.src=x.images.fixed_height_small.url;i.onclick=()=>{add({text:"",gif:url});$("panel").style.display="none";};g.appendChild(i);});
+  }catch(e){g.textContent="No se pudieron cargar los GIFs";}
 }
+$("eb").onclick=()=>{const p=$("panel");if(p.style.display==="flex"){p.style.display="none";}else{p.style.display="flex";tab("e");}};
+$("te").onclick=()=>tab("e");$("tg").onclick=()=>tab("g");
 
+// días juntos + planes
+$("together").onclick=()=>{
+  const v=prompt("¿Desde qué día estáis juntos? (AAAA-MM-DD)","2024-01-01");
+  if(v&&/^\d{4}-\d{2}-\d{2}$/.test(v))cfg.set({date:v}).catch(e=>alert(e.message));
+};
+$("plb").onclick=()=>$("plans").style.display="flex";
+$("px").onclick=()=>$("plans").style.display="none";
+$("pf").onsubmit=e=>{e.preventDefault();const t=$("pt").value.trim();if(!t)return;$("pt").value="";plansCol.add({text:t,done:false,by:me,ts:firebase.firestore.Timestamp.now()}).catch(er=>alert(er.message));};
 
-// ============================================
-// LOGIN
-// ============================================
-
-$("lf").onsubmit = e => {
-
+// ---------- login / sesión ----------
+$("lf").onsubmit=async e=>{
   e.preventDefault();
-
-
-  const u =
-    $("u")
-      .value
-      .trim()
-      .toLowerCase();
-
-
-  const p =
-    $("p").value;
-
-
-  if(
-    USERS[u] &&
-    USERS[u] === p
-  ){
-
-    localStorage.setItem(
-      "chatUser",
-      u
-    );
-
-
-    start(u);
-
-  }else{
-
-    $("err").textContent =
-      "Usuario o contraseña incorrectos";
-
-  }
-
+  const u=$("u").value.trim().toLowerCase();
+  try{
+    await auth.signInWithEmailAndPassword(u+DOM,$("p").value);
+    if("Notification" in window&&Notification.permission==="default")askNotif();
+  }catch(x){$("err").textContent="Usuario o contraseña incorrectos";}
 };
-
-
-// ============================================
-// SALIR
-// ============================================
-
-$("out").onclick = () => {
-
-  localStorage.removeItem(
-    "chatUser"
-  );
-
-
-  if(unsub)
-    unsub();
-
-
-  clearInterval(
-    heartTimer
-  );
-
-
-  location.reload();
-
+auth.onAuthStateChanged(u=>{
+  const name=u&&u.email?u.email.split("@")[0]:null;
+  if(name&&MEMBERS.includes(name))start(name);
+});
+$("out").onclick=async()=>{
+  unsubs.forEach(f=>f());clearInterval(presTimer);clearInterval(heartTimer);
+  await pres.doc(me).set({online:false,typing:false},{merge:true}).catch(()=>{});
+  await auth.signOut();location.reload();
 };
-
-
-// ============================================
-// ENVIAR MENSAJE
-// ============================================
-
-$("send").onsubmit = e => {
-
-  e.preventDefault();
-
-
-  const t =
-    $("t")
-      .value
-      .trim();
-
-
-  if(!t)
-    return;
-
-
-  $("t").value = "";
-
-
-  add({
-    text:t
-  });
-
-};
-
-
-// ============================================
-// SUBIR ARCHIVO
-// ============================================
-
-$("file").onchange = async e => {
-
-  const f =
-    e.target.files[0];
-
-
-  e.target.value = "";
-
-
-  if(!f)
-    return;
-
-
-  if(f.size > MAX * 3){
-
-    return alert(
-      "Archivo demasiado grande " +
-      "(máx ~2 MB)"
-    );
-
-  }
-
-
-  const data =
-    await shrink(f);
-
-
-  if(
-    data.length >
-    MAX * 1.33
-  ){
-
-    return alert(
-      "Archivo demasiado grande. " +
-      "Máximo ~700 KB."
-    );
-
-  }
-
-
-  add({
-
-    text:"",
-
-    data:data,
-
-    name:f.name,
-
-    type:f.type
-
-  });
-
-};
-
-
-// ============================================
-// RECUPERAR SESIÓN
-// ============================================
-
-const saved =
-  localStorage.getItem(
-    "chatUser"
-  );
-
-
-if(
-  saved &&
-  USERS[saved]
-){
-
-  start(saved);
-
-}
-
 </script>
-
-</body>
-</html>
+</body></html>
