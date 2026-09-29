@@ -110,7 +110,7 @@ const firebaseConfig={
   messagingSenderId:"347773335153",
   appId:"1:347773335153:web:7949a520778acacefa0dd0"
 };
-const GIPHY_KEY="SMfuLrQYuV2axjVfb87BnPoroVJw8LbE"; // <- pega aquí tu API key gratis de developers.giphy.com
+const GIPHY_KEY=""; // <- pega aquí tu API key gratis de developers.giphy.com
 const MEMBERS=["bilal","anna"], DOM="@nuestrochat.app", MAX=700*1024;
 firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore(), auth=firebase.auth(), FV=firebase.firestore.FieldValue;
@@ -336,15 +336,32 @@ $("pf").onsubmit=e=>{e.preventDefault();const t=$("pt").value.trim();if(!t)retur
 // ---------- login / sesión ----------
 $("lf").onsubmit=async e=>{
   e.preventDefault();
-  const u=$("u").value.trim().toLowerCase();
+  let u=$("u").value.trim().toLowerCase();
+  const email=u.includes("@")?u:u+DOM;
+  $("err").textContent="Entrando...";
   try{
-    await auth.signInWithEmailAndPassword(u+DOM,$("p").value);
+    await auth.signInWithEmailAndPassword(email,$("p").value);
     if("Notification" in window&&Notification.permission==="default")askNotif();
-  }catch(x){$("err").textContent="Usuario o contraseña incorrectos";}
+  }catch(x){
+    const h={
+      "auth/invalid-credential":"No existe un usuario con ese email exacto o la contraseña no coincide.",
+      "auth/user-not-found":"No existe ese usuario en Firebase.",
+      "auth/wrong-password":"Contraseña incorrecta.",
+      "auth/operation-not-allowed":"Falta activar Email/contraseña en Firebase → Authentication → Método de acceso.",
+      "auth/unauthorized-domain":"Este dominio no está autorizado: añádelo en Authentication → Configuración → Dominios autorizados.",
+      "auth/invalid-api-key":"La apiKey del firebaseConfig no es correcta.",
+      "auth/api-key-not-valid":"La apiKey del firebaseConfig no es correcta.",
+      "auth/network-request-failed":"Sin conexión o bloqueado por la restricción de la API key.",
+      "auth/too-many-requests":"Demasiados intentos, espera unos minutos.",
+      "auth/invalid-email":"Email no válido."
+    };
+    $("err").innerHTML=(h[x.code]||x.message)+"<br><small>Probando con: "+esc(email)+"<br>("+esc(x.code||"")+")</small>";
+  }
 };
 auth.onAuthStateChanged(u=>{
   const name=u&&u.email?u.email.split("@")[0]:null;
-  if(name&&MEMBERS.includes(name))start(name);
+  if(name&&MEMBERS.includes(name)&&u.email.endsWith(DOM))start(name);
+  else if(u){auth.signOut();$("err").textContent="Ese email no está permitido. Usa bilal"+DOM+" o anna"+DOM;}
 });
 $("out").onclick=async()=>{
   unsubs.forEach(f=>f());clearInterval(presTimer);clearInterval(heartTimer);
